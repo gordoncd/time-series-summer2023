@@ -1,5 +1,7 @@
 # Time Series Analysis/Prediction with Keras (training wheels)
 
+### project based around: https://www.youtube.com/watch?v=lhrCz6t7rmQ&ab_channel=CodeTrading 
+
 ## Overview
 This code performs time series analysis and prediction using Keras, a high-level neural networks API. The code utilizes historical stock data from the 'GOOGL' ticker symbol obtained through the Yahoo Finance API. The goal is to predict the next day's stock price movement.
 
