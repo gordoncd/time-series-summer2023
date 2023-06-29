@@ -29,8 +29,8 @@ You may need to install the 'pandas_ta' package using the command `! pip install
 8. The remaining dataset is scaled using the MinMaxScaler to normalize the values between 0 and 1.
 
 ## Model Training and Testing
-1. The input data 'X' is prepared by sliding a window of 'backcandles' (30) previous days' data over the dataset. This creates a 3D array where the first dimension represents the number of samples, the second dimension represents the time steps (backcandles), and the third dimension represents the features (8 technical indicators).
-2. The target variable 'y' is reshaped into a 2D array.
+1.  The input data 'X' is prepared by sliding a window of 'backcandles' (30) previous days' data over the dataset. This creates a 3D array where the first dimension represents the number of samples, the second dimension represents the time steps (backcandles), and the third dimension represents the features (8 technical indicators).
+2.  The target variable 'y' is reshaped into a 2D array.
 3. The data is split into training and testing sets using an 80:20 ratio. The split threshold is calculated based on the length of 'X'.
 4. The hyperparameters for the LSTM (Long Short-Term Memory) model are defined:
    - lstm_size: The number of LSTM units in the first layer (150)
@@ -43,10 +43,13 @@ You may need to install the 'pandas_ta' package using the command `! pip install
 9. The predicted values 'y_pred' are plotted against the actual values 'y_test' using matplotlib.
 
 ## Room for Adjustments and Performance
-1. Technical Indicators: Additional technical indicators can be added to
-
- the code by using the 'pandas_ta' library. These indicators can provide more information and potentially improve the model's performance. You can explore different indicators and their parameters to find the ones that work best for the specific stock or time series data.
-2. Model Architecture: The current model architecture consists of a single LSTM layer followed by a Dense layer. You can adjust the architecture by adding more LSTM layers, fully connected layers, or other types of layers (e.g., convolutional layers) to potentially capture more complex patterns in the data.
-3. Hyperparameters: The hyperparameters of the model, such as the number of LSTM units ('lstm_size'), batch size ('batch_size'), and the number of epochs ('epochs'), can be adjusted to improve the model's performance. Tuning these hyperparameters can help in finding the right balance between underfitting and overfitting.
-4. Data Preprocessing: The code currently uses the MinMaxScaler to normalize the data. You can explore other scaling techniques or preprocessing methods to handle outliers or skewness in the data, which may improve the model's performance.
-5. Model Evaluation: The code currently uses mean squared error (MSE) as the loss function for training the model. You can experiment with different loss functions or evaluation metrics to assess the model's performance more effectively, depending on the specific requirements of your prediction task.
+1. Technical Indicators: 
+    Additional technical indicators can be added to the code by using the 'pandas_ta' library. These indicators can provide more information and potentially improve the model's performance. You can explore different indicators and their parameters to find the ones that work best for the specific stock or time series data.
+2. Model Architecture: 
+    The current model architecture consists of a single LSTM layer followed by a Dense layer. You can adjust the architecture by adding more LSTM layers, fully connected layers, or other types of layers (e.g., convolutional layers) to potentially capture more complex patterns in the data.
+3. Hyperparameters: 
+    The hyperparameters of the model, such as the number of LSTM units ('lstm_size'), batch size ('batch_size'), and the number of epochs ('epochs'), can be adjusted to improve the model's performance. Tuning these hyperparameters can help in finding the right balance between underfitting and overfitting.
+4. Data Preprocessing: 
+    The code currently uses the MinMaxScaler to normalize the data. You can explore other scaling techniques or preprocessing methods to handle outliers or skewness in the data, which may improve the model's performance.
+5. Model Evaluation:   
+    The code currently uses mean squared error (MSE) as the loss function for training the model. You can experiment with different loss functions or evaluation metrics to assess the model's performance more effectively, depending on the specific requirements of your prediction task.
