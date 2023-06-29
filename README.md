@@ -45,7 +45,7 @@ You may need to install the 'pandas_ta' package using the command `! pip install
 8. The trained model is used to make predictions on the test data 'X_test'.
 9. The predicted values 'y_pred' are plotted against the actual values 'y_test' using matplotlib.
 
-
+# time_series_stock_training_wheels.ipynb:
 
 ## Results and Importance of Single Day Differential
 The code trains the model using the single day differential as the target variable rather than the total stock price. This choice carries several implications:
@@ -55,7 +55,7 @@ The code trains the model using the single day differential as the target variab
 - The focus on changes rather than absolute values helps the model capture patterns related to momentum, volatility, and other short-term factors that influence stock prices.
 - In real-life trading scenarios, short-term fluctuations and recent trends play a crucial role, making the single day differential more applicable and actionable.
 
-####Adjusting the Number of Candles
+#### Adjusting the Number of Candles
 The code utilizes a sliding window approach to create input sequences of 'backcandles' (30) previous days' data. Adjusting the number of candles has implications for the range of predictions made by the model:
 
 - A larger number of candles (longer input sequence) provides the model with a more extensive historical context. This can be beneficial for making longer-term predictions, as the model has access to a larger set of data to "remember" and capture longer-term trends.
@@ -68,3 +68,46 @@ The code utilizes a sliding window approach to create input sequences of 'backca
 ![result image demonstrates high variation in actual vs a relatively invariate prediction which (on average) follows the shape of the curve](imgs/differential_pred_triwheel.png)
 
 Overall, by tracking the single day differential and adjusting the number of candles, the model can generate predictions that are more applicable to real-life trading scenarios. However, continuous evaluation and refinement of the model's performance are necessary to ensure its effectiveness in capturing meaningful patterns and generating accurate predictions. 
+
+# time_series_stock_LSTM_06-29.ipynb:
+
+The CustomLSTM model is designed to perform a similar task as the Keras training wheels implementation. It utilizes PyTorch to customize and fine-tune parameters with ease, allowing for efficient grid-iteration to identify the optimal set of hyperparameters and architecture. The model's flexibility enables adjustments to the number of LSTM layers, their sizes, and the batch size for improved performance.
+
+### Training Optimization
+
+To expedite larger scale training and prevent overtraining, a stopping condition automatically stops training when the loss output does not decrease for a given number of epochs, ensuring efficient convergence.
+
+### Model Architecture
+
+The CustomLSTM model follows the following architecture:
+
+```python
+class CustomLSTM(nn.Module):
+    def __init__(self, lstm_sizes):
+        super(CustomLSTM, self).__init__()
+        self.num_layers = len(lstm_sizes)
+        self.lstm_layers = nn.ModuleList()
+        for i, lstm_size in enumerate(lstm_sizes):
+            input_size = 10 if i == 0 else lstm_sizes[i-1]
+            self.lstm_layers.append(nn.LSTM(input_size=input_size, hidden_size=lstm_size, batch_first=True))
+        self.dense = nn.Linear(lstm_sizes[-1], 1)
+        self.activation = nn.ReLU()
+
+    def forward(self, x):
+        output = x
+        for i in range(self.num_layers):
+            output, _ = self.lstm_layers[i](output)
+        output = self.dense(output[:, -1, :])
+        output = self.activation(output)
+        return output
+```
+
+### Prediction Performance
+
+!(image of moving average and prediction)[imgs/06-29-23.png]
+
+The generated graph demonstrates that the CustomLSTM model predicts more closely with the output. This can be observed by comparing it with the moving average of the actual price. The actual price exhibits high variability, making it challenging to examine its form easily.
+
+Feel free to customize and enhance this README section according to your project's requirements and additional details.
+
+Please note that this is a general template, and you may need to modify it to fit the specific structure and formatting of your project's README.
