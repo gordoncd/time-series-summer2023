@@ -104,7 +104,7 @@ class CustomLSTM(nn.Module):
 
 ### Prediction Performance
 
-![image of moving average and prediction](imgs/Screenshot 2023-06-29 at 5.13.13 PM.png)
+![imgs/Screenshot 2023-06-29 at 5.13.13 PM.png](https://github.com/gordoncd/time-series-summer2023/blob/main/imgs/06-29-23.png)
 
 The generated graph demonstrates that the CustomLSTM model predicts more closely with the output. This can be observed by comparing it with the moving average of the actual price. The actual price exhibits high variability, making it challenging to examine its form easily.
 
