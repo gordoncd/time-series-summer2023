@@ -13,7 +13,7 @@ The code requires the following dependencies:
 - pandas_ta
 - sklearn
 
-You may need to install the 'pandas_ta' package using the command `! pip install pandas_ta` in the code.
+One may need to install the 'pandas_ta' package using the command `! pip install pandas_ta` in the code.
 
 ## Data Preparation
 1. The code fetches historical stock data for the 'GOOGL' ticker symbol using the Yahoo Finance API. The data is fetched for the period from '2018-01-01' to '2023-01-01'.
@@ -44,12 +44,12 @@ You may need to install the 'pandas_ta' package using the command `! pip install
 
 ## Room for Adjustments and Performance
 1. Technical Indicators: 
-    Additional technical indicators can be added to the code by using the 'pandas_ta' library. These indicators can provide more information and potentially improve the model's performance. You can explore different indicators and their parameters to find the ones that work best for the specific stock or time series data.
+    Additional technical indicators can be added to the code by using the 'pandas_ta' library. These indicators can provide more information and potentially improve the model's performance. One can explore different indicators and their parameters to find the ones that work best for the specific stock or time series data.
 2. Model Architecture: 
-    The current model architecture consists of a single LSTM layer followed by a Dense layer. You can adjust the architecture by adding more LSTM layers, fully connected layers, or other types of layers (e.g., convolutional layers) to potentially capture more complex patterns in the data.
+    The current model architecture consists of a single LSTM layer followed by a Dense layer. One can adjust the architecture by adding more LSTM layers, fully connected layers, or other types of layers (e.g., convolutional layers) to potentially capture more complex patterns in the data.
 3. Hyperparameters: 
     The hyperparameters of the model, such as the number of LSTM units ('lstm_size'), batch size ('batch_size'), and the number of epochs ('epochs'), can be adjusted to improve the model's performance. Tuning these hyperparameters can help in finding the right balance between underfitting and overfitting.
 4. Data Preprocessing: 
-    The code currently uses the MinMaxScaler to normalize the data. You can explore other scaling techniques or preprocessing methods to handle outliers or skewness in the data, which may improve the model's performance.
+    The code currently uses the MinMaxScaler to normalize the data. One can explore other scaling techniques or preprocessing methods to handle outliers or skewness in the data, which may improve the model's performance.
 5. Model Evaluation:   
-    The code currently uses mean squared error (MSE) as the loss function for training the model. You can experiment with different loss functions or evaluation metrics to assess the model's performance more effectively, depending on the specific requirements of your prediction task.
+    The code currently uses mean squared error (MSE) as the loss function for training the model. One can experiment with different loss functions or evaluation metrics to assess the model's performance more effectively, depending on the specific requirements of one's prediction task.
