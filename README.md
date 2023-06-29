@@ -1,5 +1,3 @@
-Certainly! Here's an updated version of the comprehensive README using Markdown with headings and formatting:
-
 # Time Series Analysis/Prediction with Keras (training wheels)
 
 ## Overview
