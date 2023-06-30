@@ -107,7 +107,3 @@ class CustomLSTM(nn.Module):
 ![imgs/Screenshot 2023-06-29 at 5.13.13 PM.png](https://github.com/gordoncd/time-series-summer2023/blob/main/imgs/06-29-23.png)
 
 The generated graph demonstrates that the CustomLSTM model predicts more closely with the output. This can be observed by comparing it with the moving average of the actual price. The actual price exhibits high variability, making it challenging to examine its form easily.
-
-Feel free to customize and enhance this README section according to your project's requirements and additional details.
-
-Please note that this is a general template, and you may need to modify it to fit the specific structure and formatting of your project's README.
