@@ -1,4 +1,4 @@
-# Time Series Analysis/Prediction with Keras (training wheels)
+# Time Series Analysis/Prediction of Stock/ Financial Data
 
 ### project based around: https://www.youtube.com/watch?v=lhrCz6t7rmQ&ab_channel=CodeTrading 
 
