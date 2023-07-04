@@ -1,5 +1,6 @@
 import pandas as pd
 import torch
+import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
@@ -10,7 +11,7 @@ from model import LSTMNetwork
 # Define the network configuration
 input_size = 1
 hidden_size = 25
-num_layers = 1
+num_layers = 2
 output_size = 2
 dropout = 0.1
 
@@ -25,26 +26,29 @@ optimizer = optim.RMSprop(net.parameters())
 max_epochs = 1000
 patience = 10
 
-# Load the training, validation, and test data from CSV files
-train_data = pd.read_csv("data/train_data.csv")
-val_data = pd.read_csv("data/val_data.csv")
-test_data = pd.read_csv("data/test_data.csv")
+#load in the data 
+X = np.load("data/test-sp500-simple-return-periodized.npy")
+y = np.load("data/test-sp500-simple-return-labels.npy")
+
+
+# Calculate the number of samples for each split
+num_samples = len(X)
+num_train = int(0.8 * num_samples)
+num_val = int(0.1 * num_train)
+
+# Split the data
+X_train = X[:num_train]
+y_train = y[:num_train]
+X_val = X[num_train:num_train+num_val]
+y_val = y[num_train:num_train+num_val]
+X_test = X[num_train+num_val:]
+y_test = y[num_train+num_val:]
+
 
 # Create the train_loader, val_loader, and test_loader
-train_inputs = torch.tensor(train_data["Sequence"].values).unsqueeze(dim=2).float()
-train_labels = torch.tensor(train_data["Label"].values).long()
-train_dataset = TensorDataset(train_inputs, train_labels)
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-
-val_inputs = torch.tensor(val_data["Sequence"].values).unsqueeze(dim=2).float()
-val_labels = torch.tensor(val_data["Label"].values).long()
-val_dataset = TensorDataset(val_inputs, val_labels)
-val_loader = DataLoader(val_dataset, batch_size=32)
-
-test_inputs = torch.tensor(test_data["Sequence"].values).unsqueeze(dim=2).float()
-test_labels = torch.tensor(test_data["Label"].values).long()
-test_dataset = TensorDataset(test_inputs, test_labels)
-test_loader = DataLoader(test_dataset, batch_size=32)
+train_loader = DataLoader(TensorDataset(torch.from_numpy(X_train).float(), torch.from_numpy(y_train).long()), batch_size=32, shuffle=True)
+val_loader = DataLoader(TensorDataset(torch.from_numpy(X_val).float(), torch.from_numpy(y_val).long()), batch_size=32, shuffle=True)
+test_loader = DataLoader(TensorDataset(torch.from_numpy(X_test).float(), torch.from_numpy(y_test).long()), batch_size=32, shuffle=True)
 
 # Train the model
 best_model_state_dict = train(net, train_loader, val_loader, criterion, optimizer, max_epochs, patience)
