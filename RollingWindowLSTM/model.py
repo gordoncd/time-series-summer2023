@@ -1,25 +1,22 @@
-import torch
+
 import torch.nn as nn
-import torch.optim as optim
 
 class LSTMNetwork(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, output_size, dropout):
+    def __init__(self, input_size, hidden_size, output_size):
         super(LSTMNetwork, self).__init__()
         self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
+        self.dropout = nn.Dropout(0.1)
         self.fc = nn.Linear(hidden_size, output_size)
         self.softmax = nn.Softmax(dim=1)
-        
-    def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
-        
-        out, _ = self.lstm(x, (h0, c0))
-        
-        out = self.fc(out[:, -1, :])  # Use the output from the last timestep only
-        out = self.softmax(out)
-        
-        return out
 
+    def forward(self, x):
+        # x shape: (batch_size, seq_length, input_size)
+        _, (h_n, _) = self.lstm(x)
+        # h_n shape: (1, batch_size, hidden_size)
+        h_n = h_n.squeeze(0)
+        # h_n shape: (batch_size, hidden_size)
+        out = self.dropout(h_n)
+        out = self.fc(out)
+        out = self.softmax(out)
+        return out
