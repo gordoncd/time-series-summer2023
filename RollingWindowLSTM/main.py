@@ -29,10 +29,8 @@ print(os.listdir())
 X = np.load('data/test-sp500-simple-return-periodized.npy')
 y = np.load("data/test-sp500-simple-return-labels.npy")
 
-X = np.reshape(X, (X.shape[0]*X.shape[1], X.shape[2], 1))
-y = np.reshape(y, (y.shape[0]*y.shape[1],y.shape[2], 1))
-
 print(X.shape, y.shape)
+y = y.reshape(-1, )
 
 # Calculate the number of samples for each split
 num_samples = len(X)
@@ -52,6 +50,7 @@ y_test = y[num_train+num_val:]
 train_loader = DataLoader(TensorDataset(torch.from_numpy(X_train).float(), torch.from_numpy(y_train).long()), batch_size=32, shuffle=False)
 val_loader = DataLoader(TensorDataset(torch.from_numpy(X_val).float(), torch.from_numpy(y_val).long()), batch_size=32, shuffle=False)
 test_loader = DataLoader(TensorDataset(torch.from_numpy(X_test).float(), torch.from_numpy(y_test).long()), batch_size=32, shuffle=False)
+
 
 # Train the model
 best_model_state_dict = train(net, train_loader, val_loader, criterion, optimizer, max_epochs, patience)
