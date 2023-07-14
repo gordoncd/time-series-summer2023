@@ -1,0 +1,25 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%environment
+    # Set environment variables if needed
+
+%post
+    # Update and install required packages
+    apt-get update
+    apt-get install -y python3-pip
+
+    # Install dependencies
+    pip3 install yfinance numpy pandas requests beautifulsoup4 tqdm torch torchmetrics
+
+    # Copy your codebase to the container
+    mkdir /app
+    # Copy all the scripts and necessary files from your codebase directory to /app in the container
+    # Example: cp -r /path/to/your/codebase/* /app
+
+    # Set the working directory
+    WORKDIR /app
+
+%runscript
+    # Set the entry point command for running your code
+    python3 main.py
