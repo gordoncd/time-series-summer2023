@@ -80,6 +80,7 @@ def create_study_periods(with_simple_returns, study_period_length, sequence_leng
     study_periods = []
     labels = []
     median_arr = []
+    trues = []
 
     for i in tqdm(range(0, len(with_simple_returns) - study_period_length + 1, stride), desc="Generating Study Periods"):
         period_data = with_simple_returns.iloc[i:i + study_period_length].copy()
@@ -89,18 +90,19 @@ def create_study_periods(with_simple_returns, study_period_length, sequence_leng
         label = np.where(training_data.values < median_to_label[:, np.newaxis], 0, 1)
         sequences = [training_data.values[j:j + sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
         label = [label[1+j + sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
+        true  = [training_data.values[1+j+sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
         if include_median:
             median_formatted = [median_to_label[1+j + sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
             median_formatted = np.array(median_formatted)
             median_arr.append(median_formatted)
-            
+        trues.append(true)
         label = np.array(label)
         study_periods.append(sequences)
         labels.append(label)
     if include_median:
-        return study_periods, labels, median_arr
+        return study_periods, labels, median_arr, trues
     else:
-        return study_periods, labels
+        return study_periods, labels, trues
 
 def reshape_arrays(study_periods, labels, medians = None):
     """
@@ -143,14 +145,23 @@ def reshape_arrays(study_periods, labels, medians = None):
 
     return study_periods_array, labels_array
 
+def reshape_arrays_comparison(labels, trues):
+    labels_array = np.concatenate(
+    [np.array(array) for array in tqdm(labels, desc="Labels") if array is not None],
+    axis=1)
+    trues_array = np.concatenate(
+    [np.array(array) for array in tqdm(trues, desc="Trues") if array is not None], axis = 1)
+
+    return labels_array, trues_array
+
 def save_data(study_periods_array, labels_array):
     """
     Saves the study periods and labels to numpy files. This allows the data to be loaded later for analysis or model training.
     :param study_periods_array: A numpy array of reshaped study periods.
     :param labels_array: A numpy array of reshaped labels.
     """
-    np.save("data/test-sp500-simple-return-periodized.npy", study_periods_array)
-    np.save("data/test-sp500-simple-return-labels.npy", labels_array)
+    np.save("data/sp500-simple-return-periodized.npy", study_periods_array)
+    np.save("data/sp500-simple-return-labels.npy", labels_array)
 
 def main():
     """
@@ -164,13 +175,46 @@ def main():
     #grab tickers from column names
     tickers = all_data.columns.values
     with_simple_returns = create_simple_returns(all_data, tickers)
-    study_periods, labels, crossec_meds = create_study_periods(with_simple_returns, study_period_length, sequence_length, stride, True)
+    study_periods, labels, crossec_meds, __ = create_study_periods(with_simple_returns, study_period_length, sequence_length, stride, True)
     
-    study_periods_array, labels_array, medians_array = reshape_arrays(study_periods, labels, crossec_meds)
+    study_periods_array, labels_array, medians_array= reshape_arrays(study_periods, labels, crossec_meds)
     print(study_periods_array.shape)
     print(labels_array.shape)
     print(medians_array.shape)
-    #save_data(study_periods_array, medians)
+    save_data(study_periods_array, labels_array)
+
+def comparison():
+    """
+    The main function of the program. Coordinates all the steps: downloading stock price data, calculating returns, generating study periods and labels, reshaping the arrays, and saving them to disk. It sets specific values for the study period length (1000), sequence length (240), and stride (250). It also specifies a fixed list of tickers ['AAPL', 'MMM', 'AMZN', 'MSFT', 'TSLA'] for demonstration purposes.
+    """
+    study_period_length = 1000
+    sequence_length = 240
+    stride = 250  # Rolling forward by 250 days
+    #load data from csv
+    all_data = pd.read_csv('data/sp500-all-data.csv', index_col=0)
+    #grab tickers from column names
+    tickers = all_data.columns.values
+    with_simple_returns = create_simple_returns(all_data, tickers)
+    study_periods, labels, crossec_meds, trues = create_study_periods(with_simple_returns, study_period_length, sequence_length, stride, True)
+    print(np.array(labels[0]).shape, np.array(trues[0]).shape, np.array(crossec_meds).shape)
+
+    medians = np.array(crossec_meds)
+    num_periods = len(labels)
+    print(medians.shape, labels[0].shape)
+    for period in range(num_periods):
+        label_period = np.array(labels[period])
+        true_period = np.array(trues[period])
+        for step in range(labels[period].shape[0]):
+            days_median = medians[period][step]
+            for stock in range(labels[0].shape[1]):  
+                if true_period[step,stock] > days_median and label_period[step,stock] != 1:
+                    print("problem")
+                if true_period[step,stock] < days_median and label_period[step,stock] != 0:
+                    print("problem")
+
+
+                
+
 
 if __name__ == "__main__":
     main()
