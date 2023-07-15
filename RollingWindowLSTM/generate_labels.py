@@ -152,6 +152,9 @@ def reshape_arrays_comparison(labels, trues):
     trues_array = np.concatenate(
     [np.array(array) for array in tqdm(trues, desc="Trues") if array is not None], axis = 1)
 
+    labels_array = np.swapaxes(labels_array, 0, 1)
+    trues_array = np.swapaxes(trues_array, 0, 1)
+
     return labels_array, trues_array
 
 def save_data(study_periods_array, labels_array):
@@ -184,40 +187,52 @@ def main():
     save_data(study_periods_array, labels_array)
 
 def comparison():
-    """
-    The main function of the program. Coordinates all the steps: downloading stock price data, calculating returns, generating study periods and labels, reshaping the arrays, and saving them to disk. It sets specific values for the study period length (1000), sequence length (240), and stride (250). It also specifies a fixed list of tickers ['AAPL', 'MMM', 'AMZN', 'MSFT', 'TSLA'] for demonstration purposes.
-    """
     study_period_length = 1000
     sequence_length = 240
-    stride = 250  # Rolling forward by 250 days
-    #load data from csv
+    stride = 250
+
+    # Load data from csv
     all_data = pd.read_csv('data/sp500-all-data.csv', index_col=0)
-    #grab tickers from column names
     tickers = all_data.columns.values
     with_simple_returns = create_simple_returns(all_data, tickers)
     study_periods, labels, crossec_meds, trues = create_study_periods(with_simple_returns, study_period_length, sequence_length, stride, True)
-    print(np.array(labels[0]).shape, np.array(trues[0]).shape, np.array(crossec_meds).shape)
 
-    medians = np.array(crossec_meds)
+    # Check array shapes
+    print(np.array(labels[0]).shape, np.array(trues[0]).shape, np.array(crossec_meds).shape)
+    
     num_periods = len(labels)
-    print(medians.shape, labels[0].shape)
+    medians = np.array(crossec_meds)
+
+    labels_array, trues_array = [], []
+
     for period in range(num_periods):
         label_period = np.array(labels[period])
         true_period = np.array(trues[period])
+        labels_array.append(label_period)
+        trues_array.append(true_period)
+        
         for step in range(labels[period].shape[0]):
             days_median = medians[period][step]
+            
             for stock in range(labels[0].shape[1]):  
-                if true_period[step,stock] > days_median and label_period[step,stock] != 1:
+                if true_period[step, stock] > days_median and label_period[step, stock] != 1:
                     print("problem")
-                if true_period[step,stock] < days_median and label_period[step,stock] != 0:
+                if true_period[step, stock] < days_median and label_period[step, stock] != 0:
                     print("problem")
 
+    labels_array, trues_array = reshape_arrays_comparison(labels_array, trues_array)
+
+    print(labels_array.shape, trues_array.shape)
+    #save arrays 
+    np.save("data/sp500-labels.npy", labels_array)
+    np.save("data/sp500-trues.npy", trues_array)
+    np.save('data/sp500-medians.npy', medians)
 
                 
 
 
 if __name__ == "__main__":
-    main()
+    comparison()
    
 
 
