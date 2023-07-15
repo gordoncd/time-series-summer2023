@@ -13,9 +13,8 @@ From: ubuntu:20.04
     pip3 install yfinance numpy pandas requests beautifulsoup4 tqdm torch torchmetrics
 
     # Copy your codebase to the container
-    mkdir /app
-    # Copy all the scripts and necessary files from your codebase directory to /app in the container
-    # Example: cp -r /path/to/your/codebase/* /app
+    mkdir /time-series
+    cp -r /path/to/codebase/* /time-series
 
     # Set the working directory
     WORKDIR /app
