@@ -88,7 +88,7 @@ def create_study_periods(with_simple_returns, study_period_length, sequence_leng
         training_data = period_data
         median_to_label = period_data['Cross-sectional Median'].values
         label = np.where(training_data.values < median_to_label[:, np.newaxis], 0, 1)
-        sequences = [training_data.values[j:j + sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
+        sequences = [training_data.values[j+1:j + sequence_length+1] for j in range(0, len(training_data) - sequence_length-1, 1)]
         label = [label[1+j + sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
         true  = [training_data.values[1+j+sequence_length] for j in range(0, len(training_data) - sequence_length-1, 1)]
         if include_median:
@@ -198,11 +198,25 @@ def comparison():
     study_periods, labels, crossec_meds, trues = create_study_periods(with_simple_returns, study_period_length, sequence_length, stride, True)
 
     # Check array shapes
-    print(np.array(labels[0]).shape, np.array(trues[0]).shape, np.array(crossec_meds).shape)
-    
+    print(np.array(labels[0]).shape, np.array(study_periods[0]).shape, np.array(crossec_meds).shape)
+    study_periods_labeler = []
+    for i in tqdm(range(len(study_periods))):
+
+        original_shape = np.array(study_periods[i]).shape
+
+        # Grab the last item in each sequence of 240
+        last_items = np.array(study_periods[i])[:, -1, :]
+
+        # Reshape the array to (759, 1, 257)
+        reshaped_array = last_items.reshape(original_shape[0], 1, original_shape[2])
+
+        # Reshape again to (759, 257)
+        final_array = reshaped_array.reshape(original_shape[0], original_shape[2])
+        study_periods_labeler.append(final_array)
+
     num_periods = len(labels)
     medians = np.array(crossec_meds)
-
+    
     labels_array, trues_array = [], []
 
     for period in range(num_periods):
@@ -210,29 +224,61 @@ def comparison():
         true_period = np.array(trues[period])
         labels_array.append(label_period)
         trues_array.append(true_period)
+        study_periods_period = study_periods_labeler[period]
         
-        for step in range(labels[period].shape[0]):
+        for step in range(labels[period].shape[0]-1):
             days_median = medians[period][step]
             
             for stock in range(labels[0].shape[1]):  
-                if true_period[step, stock] > days_median and label_period[step, stock] != 1:
+                if study_periods_period[step+1, stock] > days_median and label_period[step, stock] != 1:
                     print("problem")
-                if true_period[step, stock] < days_median and label_period[step, stock] != 0:
+                if study_periods_period[step+1, stock] < days_median and label_period[step, stock] != 0:
                     print("problem")
 
-    labels_array, trues_array = reshape_arrays_comparison(labels_array, trues_array)
+    labels_array, trues_array = reshape_arrays_comparison(labels_array, study_periods_labeler)
 
     print(labels_array.shape, trues_array.shape)
+
+    import matplotlib.pyplot as plt
+
+    # Transpose the arrays to reshape them
+    visualizeX = np.transpose(trues_array)
+    visualizey = np.transpose(labels_array)
+
+    # Verify the new shapes
+    print(visualizeX.shape)  # should be (759, 11459)
+    print(visualizey.shape)  # should be (759, 11459)
+
+    sequenceX = visualizeX[1:,0]
+    sequencey = visualizey[:-1,0]
+    print(sequenceX.shape, sequencey.shape)
+    sequence = np.arange(sequenceX.shape[0])
+    # Create a scatter plot
+    plt.scatter(sequenceX, sequence, c=sequencey)
+
+    # Set colors for the classes
+    plt.colorbar(ticks=[0, 1], label='Classification')
+    plt.clim(0, 1)
+
+    # Add labels and title
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Scatter Plot with Binary Classification')
+
+    # Display the plot
+    plt.show()
+
+
     #save arrays 
-    np.save("data/sp500-labels.npy", labels_array)
-    np.save("data/sp500-trues.npy", trues_array)
-    np.save('data/sp500-medians.npy', medians)
+    # np.save("data/sp500-labels.npy", labels_array)
+    # np.save("data/sp500-trues.npy", trues_array)
+    # np.save('data/sp500-medians.npy', medians)
 
                 
 
 
 if __name__ == "__main__":
-    comparison()
+    main()
    
 
 
