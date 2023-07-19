@@ -94,7 +94,7 @@ Our model has the input layer which then moves into the LSTM layer.  Next, the o
 
 The train() function trains the model by iterating over epochs, performing forward and backward passes for each batch, calculating training and validation losses, and updating the model's parameters using an optimizer. It implements early stopping based on the validation loss and returns the state dictionary of the model with the best validation loss.
 
-We use Binary Cross Entropy Loss as our criterion and an RMSprop optimizer.  This follows Krauss and Fischer, 2018.
+I use Binary Cross Entropy Loss as our criterion and an RMSprop optimizer.  This follows Krauss and Fischer, 2018.
 
 The rest of the training hyperparameters are still in progress and we do not have an effective combination of parameters.
 
