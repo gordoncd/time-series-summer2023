@@ -1,109 +1,151 @@
-# Time Series Analysis/Prediction of Stock/ Financial Data
+# Predicting Direction of Input Stock from Sequence of n Prior Days. LSTM with Rolling Window Approach 
+<p style="text-align: center;">Gordon Doore </p>
+<p style="text-align: center;">Colby College '25 </p>
+<p style="text-align: center;">Summer 2023 Independent Project </p>
 
-### project based around: https://www.youtube.com/watch?v=lhrCz6t7rmQ&ab_channel=CodeTrading 
+# Project Overview
 
-## Overview
-This code performs time series analysis and prediction using Keras, a high-level neural networks API. The code utilizes historical stock data from the 'GOOGL' ticker symbol obtained through the Yahoo Finance API. The goal is to predict the next day's stock price movement.
 
-## Dependencies
-The code requires the following dependencies:
-- tensorflow
-- keras
-- yfinance
-- pandas
-- numpy
-- matplotlib
-- pandas_ta
-- sklearn
+## Table of Contents
 
-You may need to install the 'pandas_ta' package using the command `! pip install pandas_ta` in the code.
+1. [Description](#description)
+2. [Dependencies](#dependencies)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Contributing](#contributing)
+6. [License](#license)
 
-## Data Preparation
-1. The code fetches historical stock data for the 'GOOGL' ticker symbol using the Yahoo Finance API. The data is fetched for the period from '2018-01-01' to '2023-01-01'.
-2. Various technical indicators are calculated and added to the data, including:
-   - RSI (Relative Strength Index) with a length of 15
-   - EMA (Exponential Moving Average) with lengths of 20, 100, and 150
-   - Other technical indicators can be added as needed
-3. The target variable is calculated as the difference between the adjusted closing price ('Adj Close') and the opening price ('Open') of each day. The target variable is then shifted by one day to align it with the corresponding input data.
-4. The target variable is transformed into a binary class variable, where 1 represents a positive target (price increase) and 0 represents a negative target (price decrease or no change).
-5. The 'Adj Close' of the next day is stored as a separate target variable 'TargetNextClose' for evaluation purposes.
-6. Any rows with missing values (NaN) are dropped from the dataset.
-7. The 'Volume', 'Close', and 'Date' columns are dropped from the dataset.
-8. The remaining dataset is scaled using the MinMaxScaler to normalize the values between 0 and 1.
+## Description<a name="description"></a>
 
-## Model Training and Testing
-1. The input data 'X' is prepared by sliding a window of 'backcandles' (30) previous days' data over the dataset. This creates a 3D array where the first dimension represents the number of samples, the second dimension represents the time steps (backcandles), and the third dimension represents the features (8 technical indicators).
-2. The target variable 'y' is reshaped into a 2D array.
-3. The data is split into training and testing sets using an 80:20 ratio. The split threshold is calculated based on the length of 'X'.
-4. The hyperparameters for the LSTM (Long Short-Term Memory) model are defined:
-   - lstm_size: The number of LSTM units in the first layer (150)
-   - batch_size: The number of samples per gradient update during training (15)
-   - epochs: The number of times the entire dataset is passed forward and backward through the model during training (30)
-5. The LSTM model is defined using the Keras functional API. It consists of an LSTM layer followed by a Dense layer and an output Activation layer.
-6. The Adam optimizer is used with mean squared error (MSE) loss for compilation of the model.
-7. The model is trained using the training data. Validation split of 0.1 is used to evaluate the model performance during training.
-8. The trained model is used to make predictions on the test data 'X_test'.
-9. The predicted values 'y_pred' are plotted against the actual values 'y_test' using matplotlib.
+### Data Generation:
 
-# time_series_stock_training_wheels.ipynb:
+#### generate_labels.py
 
-## Results and Importance of Single Day Differential
-The code trains the model using the single day differential as the target variable rather than the total stock price. This choice carries several implications:
+1. Load data from the CSV file:
+   - The `all_data` variable is assigned the value of the data loaded from the CSV file using `pd.read_csv()`.
+   - This `all_data` DataFrame contains the 'Adjusted Close' prices of all of the stocks.
 
-- The single day differential represents the change in price from the previous day, which provides a more focused and actionable signal for trading decisions.
-- By tracking the differential, the model captures relative changes in price, enabling traders to assess the direction and magnitude of price movements.
-- The focus on changes rather than absolute values helps the model capture patterns related to momentum, volatility, and other short-term factors that influence stock prices.
-- In real-life trading scenarios, short-term fluctuations and recent trends play a crucial role, making the single day differential more applicable and actionable.
+2. Calculate simple returns and cross-sectional medians:
+   - `create_simple_returns()` function is called, passing `all_data` and the list of tickers.
+   - The function computes the simple returns for each stock and calculates the cross-sectional median return for each day for the entire S&P 500.
+   - The result is assigned to `with_simple_returns` DataFrame, which contains the simple returns and cross-sectional medians across the entire dataset.
 
-#### Adjusting the Number of Candles
-The code utilizes a sliding window approach to create input sequences of 'backcandles' (30) previous days' data. Adjusting the number of candles has implications for the range of predictions made by the model:
+3. Generate study periods and labels:
+   - `create_study_periods()` function is called, passing `with_simple_returns` and other parameters such as study period length, sequence length, stride, and the option to include the median.
+   - The function generates study periods, labels, cross-sectional medians, and actual returns.
+   - The study periods are assigned to the `study_periods` list, the labels to the `labels` list, the cross-sectional medians to the `crossec_meds` list, and the actual returns to the `trues` list.
 
-- A larger number of candles (longer input sequence) provides the model with a more extensive historical context. This can be beneficial for making longer-term predictions, as the model has access to a larger set of data to "remember" and capture longer-term trends.
-- However, increasing the number of candles may introduce more noise or irrelevant information, especially if the stock's price dynamics are influenced by shorter-term factors.
-- On the other hand, a smaller number of candles (shorter input sequence) focuses the model's attention on more recent data, emphasizing short-term trends and fluctuations.
-- Finding the optimal number of candles depends on the specific characteristics of the stock and the desired prediction horizon. It requires experimenting with different window sizes and evaluating the model's performance for various prediction tasks and timeframes.
+4. Reshape the arrays:
+   - `reshape_arrays()` function is called, passing `study_periods`, `labels`, and `crossec_meds` lists.
+   - The function reshapes the study periods, labels, and cross-sectional medians arrays into the required format for training a machine learning model.
+   - The reshaped study periods are assigned to the `study_periods_array`, the reshaped labels to the `labels_array`, and the reshaped cross-sectional medians to the `medians_array`.
 
-#### Result: 
+5. Print the shapes of the arrays:
+   - The shapes of the `study_periods_array`, `labels_array`, and `medians_array` are printed using `print()` statements.
 
-![result image demonstrates high variation in actual vs a relatively invariate prediction which (on average) follows the shape of the curve](imgs/differential_pred_triwheel.png)
+6. Save the reshaped arrays to disk:
+   - `save_data()` function is called, passing the `study_periods_array` and `labels_array`.
+   - The function saves the study periods and labels arrays to numpy files.
 
-Overall, by tracking the single day differential and adjusting the number of candles, the model can generate predictions that are more applicable to real-life trading scenarios. However, continuous evaluation and refinement of the model's performance are necessary to ensure its effectiveness in capturing meaningful patterns and generating accurate predictions. 
+The operations here are very memory intensive and can be extremely slow if your machine has limited memory.
 
-# time_series_stock_LSTM_06-29.ipynb:
+#### Data processing from model:
 
-The CustomLSTM model is designed to perform a similar task as the Keras training wheels implementation. It utilizes PyTorch to customize and fine-tune parameters with ease, allowing for efficient grid-iteration to identify the optimal set of hyperparameters and architecture. The model's flexibility enables adjustments to the number of LSTM layers, their sizes, and the batch size for improved performance.
-
-### Training Optimization
-
-To expedite larger scale training and prevent overtraining, a stopping condition automatically stops training when the loss output does not decrease for a given number of epochs, ensuring efficient convergence.
-
-### Model Architecture
-
-The CustomLSTM model follows the following architecture:
-
+Here, we do a final reshaping: 
 ```python
-class CustomLSTM(nn.Module):
-    def __init__(self, lstm_sizes):
-        super(CustomLSTM, self).__init__()
-        self.num_layers = len(lstm_sizes)
-        self.lstm_layers = nn.ModuleList()
-        for i, lstm_size in enumerate(lstm_sizes):
-            input_size = 10 if i == 0 else lstm_sizes[i-1]
-            self.lstm_layers.append(nn.LSTM(input_size=input_size, hidden_size=lstm_size, batch_first=True))
-        self.dense = nn.Linear(lstm_sizes[-1], 1)
-        self.activation = nn.ReLU()
-
-    def forward(self, x):
-        output = x
-        for i in range(self.num_layers):
-            output, _ = self.lstm_layers[i](output)
-        output = self.dense(output[:, -1, :])
-        output = self.activation(output)
-        return output
+# Now we get our data as an array
+y = np.load("/content/sp500-simple-return-labels.npy", mmap_mode='r')
+y = y.reshape(-1,)
+X = np.load("/content/sp500-simple-return-periodized.npy", mmap_mode='r')
 ```
 
-### Prediction Performance
+We split as 80% train, 10% validation, 10% test.
+because we have ~ 8 million samples, we can use this breakdown because the test set will still be non-trivial in size and distinction from the training data.
 
-![imgs/Screenshot 2023-06-29 at 5.13.13 PM.png](https://github.com/gordoncd/time-series-summer2023/blob/main/imgs/06-29-23.png)
+##### Data Loader:
+our model is looking for our data to come batched, so we use PyTorch's DataLoader object
 
-The generated graph demonstrates that the CustomLSTM model predicts more closely with the output. This can be observed by comparing it with the moving average of the actual price. The actual price exhibits high variability, making it challenging to examine its form easily.
+we define our datasets as follows: 
+
+```python
+train_dataset = TensorDataset(torch.from_numpy(X_train).float(), torch.from_numpy(y_train).float().unsqueeze(1))
+train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+
+val_dataset = TensorDataset(torch.from_numpy(X_val).float(), torch.from_numpy(y_val).float().unsqueeze(1))
+val_loader = DataLoader(val_dataset, batch_size=128, shuffle=False)
+
+test_dataset = TensorDataset(torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float().unsqueeze(1))
+test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False)
+```
+
+Here we can modify the batch size,and this is still being experimented on.
+I shuffled the training data to ensure against overtraining (sliding window has highly similar data next to eachother)
+The data is then unsqueezed to be accepted into the model's criterion (BCELoss)
+
+The data is now acceptable for entry into the model.
+
+### Model Architecture:
+
+![Diagram of model](imgs/model_diagram.png)
+
+Our model has the input layer which then moves into the LSTM layer.  Next, the output of the LSTM is normalized using batch normalization.  In this case, we have our batchsize set to 2. The output of this normalization then has 10% dropout performed to avoid overfitting and a ReLU afterward to help reduce linearity in the data to help the model learn better. Next, the output of ReLU is entered into a fully connected layer of hidden size 1, thus reducing the dimensionality of the output to our binary classification. Finally, this is activated with sigmoid, which is the best output activation for binary classification problems.
+
+### Model Training Loop:
+
+The train() function trains the model by iterating over epochs, performing forward and backward passes for each batch, calculating training and validation losses, and updating the model's parameters using an optimizer. It implements early stopping based on the validation loss and returns the state dictionary of the model with the best validation loss.
+
+We use Binary Cross Entropy Loss as our criterion and an RMSprop optimizer.  This follows Krauss and Fischer, 2018.
+
+The rest of the training hyperparameters are still in progress and we do not have an effective combination of parameters.
+
+### Testing: 
+
+In progress
+
+
+## Dependencies<a name="dependencies"></a>
+
+The project has the following dependencies:
+
+- [Dependency 1](link): [Brief description or purpose of the dependency].
+- [Dependency 2](link): [Brief description or purpose of the dependency].
+- [Dependency 3](link): [Brief description or purpose of the dependency].
+- ...
+
+Please make sure to install or set up these dependencies before using the project.
+
+## Installation<a name="installation"></a>
+
+To install the project, follow these steps:
+
+1. Clone the repository: `git clone <repository_url>`
+2. Navigate to the project directory: `cd project_directory`
+3. Install the required dependencies: `npm install` or `pip install -r requirements.txt`
+
+## Usage<a name="usage"></a>
+
+To use the project, follow these steps:
+
+1. [Provide step-by-step instructions on how to use the project]
+2. [Include examples or code snippets if necessary]
+
+## Contributing<a name="contributing"></a>
+
+Contributions to this project are welcome. To contribute, please follow these steps:
+
+1. Fork the repository
+2. Create a new branch: `git checkout -b new_branch`
+3. Make your changes and commit them: `git commit -am 'Add feature'`
+4. Push the changes to your forked repository: `git push origin new_branch`
+5. Submit a pull request detailing your changes
+
+## License<a name="license"></a>
+
+[Specify the license under which the project is distributed. For example, MIT, Apache, etc.]
+
+Please refer to the LICENSE file for more information.
+
+Feel free to reach out if you have any questions or need further assistance.
+
+Happy coding!
+
