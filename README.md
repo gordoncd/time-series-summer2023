@@ -21,7 +21,7 @@
 
 #### generate_labels.py
 
-1. Load data from the CSV file:
+1. Load data from the CSV file: 
    - The `all_data` variable is assigned the value of the data loaded from the CSV file using `pd.read_csv()`.
    - This `all_data` DataFrame contains the 'Adjusted Close' prices of all of the stocks.
 
