@@ -102,8 +102,6 @@ The data is now acceptable for entry into the model.
 
 ### Model Architecture:
 
-##### Diagram represents flow of data with batch_size = 2 
-###### In reality, I have been using between 32 and 128
 ![Diagram of model](imgs/model_diagram.png)
 
 Our model has the input layer which then moves into the LSTM layer.  Next, the output of the LSTM is normalized using batch normalization.  In this case, we have our batchsize set to 2. The output of this normalization then has 10% dropout performed to avoid overfitting and a ReLU afterward to help reduce linearity in the data to help the model learn better. Next, the output of ReLU is entered into a fully connected layer of hidden size 1, thus reducing the dimensionality of the output to our binary classification. Finally, this is activated with sigmoid, which is the best output activation for binary classification problems.
