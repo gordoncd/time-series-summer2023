@@ -218,47 +218,6 @@ def train(model, train_loader, val_loader, max_epochs=100, patience=5, lr=0.001)
 In progress
 
 
-## Dependencies<a name="dependencies"></a>
-
-The project has the following dependencies:
-
-- [Dependency 1](link): [Brief description or purpose of the dependency].
-- [Dependency 2](link): [Brief description or purpose of the dependency].
-- [Dependency 3](link): [Brief description or purpose of the dependency].
-- ...
-
-Please make sure to install or set up these dependencies before using the project.
-
-## Installation<a name="installation"></a>
-
-To install the project, follow these steps:
-
-1. Clone the repository: `git clone <repository_url>`
-2. Navigate to the project directory: `cd project_directory`
-3. Install the required dependencies: `npm install` or `pip install -r requirements.txt`
-
-## Usage<a name="usage"></a>
-
-To use the project, follow these steps:
-
-1. [Provide step-by-step instructions on how to use the project]
-2. [Include examples or code snippets if necessary]
-
-## Contributing<a name="contributing"></a>
-
-Contributions to this project are welcome. To contribute, please follow these steps:
-
-1. Fork the repository
-2. Create a new branch: `git checkout -b new_branch`
-3. Make your changes and commit them: `git commit -am 'Add feature'`
-4. Push the changes to your forked repository: `git push origin new_branch`
-5. Submit a pull request detailing your changes
-
-## License<a name="license"></a>
-
-[Specify the license under which the project is distributed. For example, MIT, Apache, etc.]
-
-Please refer to the LICENSE file for more information.
 
 Feel free to reach out if you have any questions or need further assistance.
 
